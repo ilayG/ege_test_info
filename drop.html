@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сортировка кода</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        textarea {
+            width: 90%;
+            height: 100px;
+            margin: 10px 0;
+        }
+        #gameArea {
+            display: none;
+            margin-top: 20px;
+        }
+        .code-container {
+            width: 320px;
+            margin: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+        .code-line {
+            padding: 5px;
+            margin: 5px 0;
+            background-color: white;
+            border: 1px solid #aaa;
+            cursor: grab;
+            white-space: pre;
+            font-family: monospace;
+            display: flex;
+            align-items: center;
+        }
+        .dragging {
+            opacity: 0.5;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Введите код:</h2>
+    <textarea id="codeInput" placeholder="Введите код сюда...">
+def treasure_hunt():
+    dir = West
+    x = get_pos_x()
+    y = get_pos_y()
+    while True:
+        move(dir)
+    </textarea>
+    <br>
+    <button id="start_game">Начать</button>
+
+    <div id="gameArea">
+        <h2>Перетащите строки кода в правильный порядок</h2>
+        <div class="code-container" id="codeContainer"></div>
+        <button id="check_order">Проверить</button>
+    </div>
+
+    <div class="overlay" id="overlay">Неправильно!</div>
+    <div class="overlay" id="overlay_good">Правильно!</div>
+
+    <script>
+        document.getElementById("start_game").addEventListener("click", startGame);
+        document.getElementById("start_game").addEventListener("touchstart", startGame);
+
+        document.getElementById("check_order").addEventListener("click", checkOrder);
+        document.getElementById("check_order").addEventListener("touchstart", checkOrder);
+
+
+        let correctOrder = [];
+        let shuffledOrder = [];
+
+        function startGame() {
+            let input = document.getElementById("codeInput").value;
+            let lines = input.split("\n").filter(line => line.trim() !== "").map(line => {
+                return { text: line, indent: line.match(/^\s*/)[0] };
+            });
+
+            correctOrder = lines.map(line => line.text);
+            shuffledOrder = [...correctOrder].sort(() => Math.random() - 0.5);
+
+            let container = document.getElementById("codeContainer");
+            container.innerHTML = "";
+
+            shuffledOrder.forEach((lineText, index) => {
+                let div = document.createElement("div");
+                div.classList.add("code-line");
+                div.textContent = lineText;
+                div.draggable = true;
+                div.dataset.index = index;
+
+                div.addEventListener("dragstart", dragStart);
+                div.addEventListener("dragover", dragOver);
+                div.addEventListener("drop", dragDrop);
+
+                container.appendChild(div);
+            });
+
+            document.getElementById("gameArea").style.display = "block";
+        }
+
+        let draggedItem = null;
+
+        function dragStart(event) {
+            draggedItem = event.target;
+            setTimeout(() => event.target.classList.add("dragging"), 0);
+        }
+
+        function dragOver(event) {
+            event.preventDefault();
+            let container = document.getElementById("codeContainer");
+            let draggingElements = Array.from(container.querySelectorAll(".code-line:not(.dragging)"));
+            let afterElement = draggingElements.find(element => event.clientY < element.getBoundingClientRect().top + element.clientHeight / 2);
+
+            if (afterElement) {
+                container.insertBefore(draggedItem, afterElement);
+            } else {
+                container.appendChild(draggedItem);
+            }
+        }
+
+        // Для мобильных
+        function touchMove(event) {
+            event.preventDefault();
+            let touch = event.touches[0];
+            let element = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (element && element.classList.contains("code-line")) {
+                element.style.opacity = "0.5";
+            }
+        }
+
+        function touchEnd(event) {
+            let element = document.querySelector(".code-line[style]");
+            if (element) element.style.opacity = "1";
+        }
+
+        document.querySelectorAll(".code-line").forEach(el => {
+            el.addEventListener("touchmove", touchMove);
+            el.addEventListener("touchend", touchEnd);
+        });
+
+        function dragDrop(event) {
+            event.target.classList.remove("dragging");
+        }
+
+        function checkOrder() {
+            let currentOrder = Array.from(document.getElementsByClassName("code-line")).map(el => el.textContent);
+
+            if (JSON.stringify(currentOrder) === JSON.stringify(correctOrder)) {
+                let overlay = document.getElementById("overlay_good");
+                overlay.style.display = "flex";
+                setTimeout(() => overlay.style.display = "none", 1000);
+            } else {
+                let overlay = document.getElementById("overlay");
+                overlay.style.display = "flex";
+                setTimeout(() => overlay.style.display = "none", 1000);
+            }
+        }
+    </script>
+
+</body>
+</html>
