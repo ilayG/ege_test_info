@@ -3,41 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сортировка кода</title>
+    <title>Составь выражение</title>
+    <!-- Подключение CodeMirror -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/mode/python/python.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            text-align: left;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
         }
-        textarea {
-            width: 90%;
-            height: 100px;
-            margin: 10px 0;
+        .item h2, h5 {
+         
+          left: 0;
+          right: 0;
+          text-align: center;
         }
-        #gameArea {
-            display: none;
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin-top: 20px;
         }
-        .code-container {
-            width: 320px;
-            margin: auto;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
-        }
-        .code-line {
-            padding: 5px;
-            margin: 5px 0;
-            background-color: white;
-            border: 1px solid #aaa;
-            cursor: grab;
-            white-space: pre;
-            font-family: monospace;
+        .word-bank, .expression-area {
             display: flex;
-            align-items: center;
+            flex-direction: row;
+            gap: 8px;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 12px;
+            background-color: white;
+            width: 90%;
+            max-width: 600px;
+            min-height: 50px;
+            flex-wrap: wrap; /* Для переноса элементов на новую строку */
         }
-        .dragging {
-            opacity: 0.5;
+        .word {
+            padding: 10px ;
+            background-color: #007AFF;
+            color: white;
+            cursor: grab;
+            user-select: none;
+            border-radius: 8px;
+            font-size: 14px;
+            display: inline-block;
+        }
+        .expression-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .check-button {
+            
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #34C759;
+            color: white;
+            border: none;
+            border-radius: 10px;
+        }
+        .trash {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border: 2px solid #FF4500;
+            color: white;
+            font-size: 24px;
+            border-radius: 12px;
+            background-color: white;
+            width: 90%;
+            max-width: 600px;
+            min-height: 50px;
+            flex-wrap: wrap;
+        }
+        .clear-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: rgb(1, 50, 91);
+            color: #f9eff1;
+            
+            border: none;
+            border-radius: 10px;
+            
         }
         .overlay {
             position: fixed;
@@ -45,136 +102,233 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
             display: none;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
             color: white;
-            font-size: 24px;
+        }
+        .incorrect {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        .correct {
+            background: rgba(50, 205, 50, 0.5);
+        }
+        
+
+        /* Стили для контейнера кнопок */
+        .action-buttons {
+            display: flex;
+            justify-content: center; /* Центрирование по горизонтали */
+            gap: 10px; /* Пространство между элементами */
+            margin-top: 15px; /* Отступ сверху */
+        }
+
+        /* Стили для CodeMirror */
+        .CodeMirror {
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            height: auto;
+            width: 90%;
+            max-width: 600px;
+        }
+        @media (max-width: 480px) {
+            .word-bank, .expression-area, .trash, .overlay {
+                gap: 6px;
+                padding: 8px;
+                font-size: 12px;
+            }
+            .word {
+                padding: 6px 14px;
+                font-size: 12px;
+            }
+            .action-buttons {
+                flex-direction: row; /* Расположение элементов вертикально */
+                align-items: center; /* Центрирование по вертикали */
+            }
+
+            .action-buttons > * {
+                width: 100%; /* Ширина кнопок на всю доступную ширину */
+                margin: 5px 0; /* Отступы между кнопками */
+            }
+            .check-button, .clear-button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+            .trash {
+                font-size: 18px;
+            }
+
+
         }
     </style>
 </head>
 <body>
 
-    <h2>Введите код:</h2>
-    <textarea id="codeInput" placeholder="Введите код сюда...">
-def treasure_hunt():
-    dir = West
-    x = get_pos_x()
-    y = get_pos_y()
-    while True:
-        move(dir)
-    </textarea>
-    <br>
-    <button id="start_game">Начать</button>
-
-    <div id="gameArea">
-        <h2>Перетащите строки кода в правильный порядок</h2>
-        <div class="code-container" id="codeContainer"></div>
-        <button id="check_order">Проверить</button>
+    <div class="item">
+        <h2>Составь правильное выражение</h2>
+        <h5></h5>
     </div>
+    <div class="container">
+        <div class="expression-container">
+            <div class="word-bank" id="wordBank">
+                <div class="word" draggable="true">for</div>
+                <div class="word" draggable="true">i</div>
+                <div class="word" draggable="true">in</div>
+                <div class="word" draggable="true">range(2,</div>
+                <div class="word" draggable="true">10,</div>
+                <div class="word" draggable="true">2):</div>
+                <div class="word" draggable="true">&nbsp&nbsp&nbsp</div>
+                <div class="word" draggable="true">print(i)</div>
+            </div>
+            <div class="expression-area" id="expressionArea1"></div>
+            <div class="expression-area" id="expressionArea2"></div>
+            <div class="trash" id="trash">🗑️</div>
+            <div class="action-buttons">
+                <button class="check-button" id="checkButton">Проверить</button>
+                <button class="clear-button" id="clearButton">♻️</button>
+            </div>
+            <!-- Поле для отображения собранного кода -->
+            <textarea id="codeEditor" readonly></textarea>
+        </div>
+        
+        
+        
+        
+        
 
-    <div class="overlay" id="overlay">Неправильно!</div>
-    <div class="overlay" id="overlay_good">Правильно!</div>
-
+        <div class="overlay" id="overlay"></div>
+    </div>
     <script>
-        document.getElementById("start_game").addEventListener("click", startGame);
-        document.getElementById("start_game").addEventListener("touchstart", startGame);
+        // Функция для добавления элемента в зону перетаскивания
+        function addElementToArea(area, word) {
+            const newElement = document.createElement('div');
+            newElement.innerText = word;
+            newElement.classList.add('word');
+            newElement.setAttribute('draggable', 'true');
+            area.appendChild(newElement);
+            addDragListeners(newElement);
+            updateCodeEditor(); // Обновляем CodeMirror после каждого действия
+        }
 
-        document.getElementById("check_order").addEventListener("click", checkOrder);
-        document.getElementById("check_order").addEventListener("touchstart", checkOrder);
-
-
-        let correctOrder = [];
-        let shuffledOrder = [];
-
-        function startGame() {
-            let input = document.getElementById("codeInput").value;
-            let lines = input.split("\n").filter(line => line.trim() !== "").map(line => {
-                return { text: line, indent: line.match(/^\s*/)[0] };
+        // Добавление слушателей событий для драг-н-дроп
+        function addDragListeners(element) {
+            element.addEventListener('dragstart', event => {
+                event.dataTransfer.setData('text', event.target.innerText);
+                event.dataTransfer.effectAllowed = 'move';
+                draggedElement = event.target; // Сохраняем текущий перетаскиваемый элемент
             });
-
-            correctOrder = lines.map(line => line.text);
-            shuffledOrder = [...correctOrder].sort(() => Math.random() - 0.5);
-
-            let container = document.getElementById("codeContainer");
-            container.innerHTML = "";
-
-            shuffledOrder.forEach((lineText, index) => {
-                let div = document.createElement("div");
-                div.classList.add("code-line");
-                div.textContent = lineText;
-                div.draggable = true;
-                div.dataset.index = index;
-
-                div.addEventListener("dragstart", dragStart);
-                div.addEventListener("dragover", dragOver);
-                div.addEventListener("drop", dragDrop);
-
-                container.appendChild(div);
+            element.addEventListener('dragover', event => {
+                event.preventDefault();
+                if (event.target.classList.contains('word')) {
+                    event.dataTransfer.dropEffect = 'move';
+                }
             });
-
-            document.getElementById("gameArea").style.display = "block";
+            element.addEventListener('drop', event => {
+                event.preventDefault();
+                if (!event.target.classList.contains('word')) return;
+                const parent = event.target.closest('.expression-area');
+                if (!parent) return;
+                const words = Array.from(parent.children);
+                // Находим индексы перетаскиваемого и целевого элементов
+                const draggedIndex = words.indexOf(draggedElement);
+                const targetIndex = words.indexOf(event.target);
+                if (draggedIndex !== targetIndex) {
+                    // Меняем местами элементы
+                    words.splice(targetIndex, 0, words.splice(draggedIndex, 1)[0]);
+                    parent.innerHTML = ''; // Очищаем родителя
+                    words.forEach(word => addElementToArea(parent, word.innerText)); // Пересоздаем элементы
+                }
+            });
         }
 
-        let draggedItem = null;
+        let draggedElement = null;
 
-        function dragStart(event) {
-            draggedItem = event.target;
-            setTimeout(() => event.target.classList.add("dragging"), 0);
-        }
-
-        function dragOver(event) {
-            event.preventDefault();
-            let container = document.getElementById("codeContainer");
-            let draggingElements = Array.from(container.querySelectorAll(".code-line:not(.dragging)"));
-            let afterElement = draggingElements.find(element => event.clientY < element.getBoundingClientRect().top + element.clientHeight / 2);
-
-            if (afterElement) {
-                container.insertBefore(draggedItem, afterElement);
-            } else {
-                container.appendChild(draggedItem);
-            }
-        }
-
-        // Для мобильных
-        function touchMove(event) {
-            event.preventDefault();
-            let touch = event.touches[0];
-            let element = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (element && element.classList.contains("code-line")) {
-                element.style.opacity = "0.5";
-            }
-        }
-
-        function touchEnd(event) {
-            let element = document.querySelector(".code-line[style]");
-            if (element) element.style.opacity = "1";
-        }
-
-        document.querySelectorAll(".code-line").forEach(el => {
-            el.addEventListener("touchmove", touchMove);
-            el.addEventListener("touchend", touchEnd);
+        // Добавляем слушатели для всех слов
+        document.querySelectorAll('.word').forEach(word => {
+            addDragListeners(word);
         });
 
-        function dragDrop(event) {
-            event.target.classList.remove("dragging");
-        }
+        // Обработка drag-and-drop для десктопных браузеров
+        document.querySelectorAll('.expression-area').forEach(area => {
+            area.addEventListener('dragover', event => event.preventDefault());
+            area.addEventListener('drop', event => {
+                event.preventDefault();
+                const text = event.dataTransfer.getData('text');
+                if (!text) return;
+                // Если элемент перемещается из wordBank, не удаляем его
+                if (event.target.classList.contains('expression-area')) {
+                    addElementToArea(area, text);
+                }
+            });
+        });
 
-        function checkOrder() {
-            let currentOrder = Array.from(document.getElementsByClassName("code-line")).map(el => el.textContent);
-
-            if (JSON.stringify(currentOrder) === JSON.stringify(correctOrder)) {
-                let overlay = document.getElementById("overlay_good");
-                overlay.style.display = "flex";
-                setTimeout(() => overlay.style.display = "none", 1000);
-            } else {
-                let overlay = document.getElementById("overlay");
-                overlay.style.display = "flex";
-                setTimeout(() => overlay.style.display = "none", 1000);
+        // Область удаления (корзина)
+        document.getElementById('trash').addEventListener('dragover', event => {
+            event.preventDefault();
+        });
+        document.getElementById('trash').addEventListener('drop', event => {
+            event.preventDefault();
+            if (draggedElement && !draggedElement.closest('#wordBank')) {
+                draggedElement.remove(); // Удаляем элемент только если он не из wordBank
+                updateCodeEditor(); // Обновляем CodeMirror после удаления
             }
-        }
-    </script>
+        });
 
+        // Функция для обновления CodeMirror
+        function updateCodeEditor() {
+            const expressionArea1 = document.getElementById('expressionArea1');
+            const words1 = Array.from(expressionArea1.children).map(word => word.innerText).join(' ');
+            const expressionArea2 = document.getElementById('expressionArea2');
+            const words2 = Array.from(expressionArea2.children).map(word => word.innerText).join(' ');
+            const code = `${words1}\n${words2}`.trim(); // Объединяем строки через перевод строки
+            editor.setValue(code); // Обновляем содержимое CodeMirror
+        }
+
+        // Инициализация CodeMirror
+        const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+            lineNumbers: true, // Нумерация строк
+            mode: "python",    // Язык программирования
+            theme: "default",  // Тема
+            viewportMargin: Infinity, // Показать весь код сразу
+            readOnly: true     // Только для чтения
+        });
+
+        // Проверка правильности выражения
+        document.getElementById('checkButton').addEventListener('click', () => {
+            const expressionArea1 = document.getElementById('expressionArea1');
+            const words1 = Array.from(expressionArea1.children).map(word => word.innerText).join(' ');
+            const correctExpression1 = "for i in range(2, 10, 2):";
+            const expressionArea2 = document.getElementById('expressionArea2');
+            const words2 = Array.from(expressionArea2.children).map(word => word.innerText).join(' ');
+            const correctExpression2 = "    print(i)";
+
+            const overlay = document.getElementById('overlay');
+
+            if (words1 === correctExpression1 && words2 === correctExpression2) {
+                // alert('Правильно! 🎉');
+                overlay.className = 'overlay correct';
+                overlay.innerHTML = 'Получилось!';
+            } else {
+                // alert('Попробуй ещё раз!');
+                overlay.className = 'overlay incorrect';
+                overlay.innerHTML = 'Попробуй ещё раз';
+            }
+            overlay.style.display = 'flex';
+            setTimeout(() => { overlay.style.display = 'none'; }, 1000);
+        });
+
+        // Очистка всех полей
+        document.getElementById('clearButton').addEventListener('click', () => {
+            document.getElementById('expressionArea1').innerHTML = '';
+            document.getElementById('expressionArea2').innerHTML = '';
+            updateCodeEditor(); // Обновляем CodeMirror после очистки
+        });
+
+        // Инициализация CodeMirror при загрузке страницы
+        updateCodeEditor();
+    </script>
 </body>
 </html>
