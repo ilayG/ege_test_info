@@ -37,19 +37,9 @@
             border: 2px solid #ccc;
             border-radius: 12px;
             background-color: white;
-            width: 90%;
-            /*max-width: 600px; */
-            min-width: 600px;
+            max-width: 600px;
             min-height: 50px;
             flex-wrap: wrap; /* Для переноса элементов на новую строку */
-        }
-        /* Стили для CodeMirror */
-        .CodeMirror {
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            height: auto;
-        
         }
         .word {
             padding: 10px ;
@@ -68,7 +58,6 @@
             margin-top: 15px;
         }
         .check-button {
-            
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
@@ -80,17 +69,16 @@
         .trash {
             display: flex;
             flex-direction: row;
-            gap: 8px;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            gap: 8px;
             padding: 10px;
             border: 2px solid #FF4500;
+            color: white;
+            font-size: 24px;
             border-radius: 12px;
             background-color: white;
-            width: 90%;
-            /*max-width: 600px; */
-            min-width: 600px;
+            max-width: 600px;
             min-height: 50px;
             flex-wrap: wrap;
         }
@@ -100,10 +88,8 @@
             cursor: pointer;
             background-color: rgb(1, 50, 91);
             color: #f9eff1;
-            
             border: none;
             border-radius: 10px;
-            
         }
         .overlay {
             position: fixed;
@@ -134,7 +120,15 @@
             margin-top: 15px; /* Отступ сверху */
         }
 
-        
+        /* Стили для CodeMirror */
+        .CodeMirror {
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            height: auto;
+            max-width: 600px;
+            min-height: 50px;
+        }
         @media (max-width: 480px) {
             .word-bank, .expression-area, .trash, .overlay {
                 gap: 6px;
