@@ -251,14 +251,21 @@
             // Собираем текст из этих элементов
             const userExpression2 = wordsInArea2.map(word => word.textContent).join('');
 
+            const overlay = document.getElementById('overlay');
+
             // Проверяем правильность
             if (userExpression1 === correctExpression1 && userExpression2 === correctExpression2) {
-                alert("Правильно! Вы составили корректное выражение.");
+                
                 updateCodeEditor();
+                overlay.className = 'overlay correct';
+                overlay.innerHTML = 'Получилось!';
             } else {
-                alert(`Неправильно! Ваше выражение: "\n${userExpression1}\n${userExpression2}"\nПравильное выражение: "\n${correctExpression1}\n${correctExpression2}"`);
-                updateCodeEditor();
+                // alert('Попробуй ещё раз!');
+                overlay.className = 'overlay incorrect';
+                overlay.innerHTML = 'Попробуй ещё раз';
             }
+            overlay.style.display = 'flex';
+            setTimeout(() => { overlay.style.display = 'none'; }, 1000);
         });
     </script>
 </body>
