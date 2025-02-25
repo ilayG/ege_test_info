@@ -44,6 +44,7 @@
         .word {
             padding: 10px ;
             background-color: #007AFF;
+            text-align: center;
             color: white;
             cursor: grab;
             user-select: none;
@@ -91,6 +92,15 @@
             border: none;
             border-radius: 10px;
         }
+        .copy-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: rgb(1, 50, 91);
+            color: #f9eff1;
+            border: none;
+            border-radius: 10px;
+        }
         .overlay {
             position: fixed;
             top: 0;
@@ -129,143 +139,190 @@
             max-width: 600px;
             min-height: 50px;
         }
-        @media (max-width: 480px) {
-            .word-bank, .expression-area, .trash, .overlay {
-                gap: 6px;
-                padding: 8px;
-                font-size: 12px;
-            }
+
+        /* Адаптивность для iPhone */
+        @media (max-width: 390px) {
             .word {
-                padding: 6px 14px;
-                font-size: 12px;
-            }
-            .action-buttons {
-                flex-direction: row; /* Расположение элементов вертикально */
-                align-items: center; /* Центрирование по вертикали */
+                font-size: 12px; /* Ещё меньше шрифт */
+                padding: 1px 6px; /* Ещё меньше отступы */
+                min-width: 50px; /* Сделали ещё уже */
+                min-height: 24px; /* Сделали ещё ниже */
             }
 
-            .action-buttons > * {
-                width: 100%; /* Ширина кнопок на всю доступную ширину */
-                margin: 5px 0; /* Отступы между кнопками */
+            .check-button, .clear-button, .copy-button {
+                font-size: 14px; /* Уменьшили шрифт */
+                padding: 8px 16px; /* Уменьшили отступы */
             }
-            .check-button, .clear-button {
-                font-size: 14px;
-                padding: 8px 16px;
-            }
+
             .trash {
-                font-size: 18px;
+                font-size: 18px; /* Уменьшили иконку */
             }
-
-
         }
     </style>
 </head>
 <body>
-
     <div class="item">
         <h2>Составь правильное выражение</h2>
         <h5></h5>
     </div>
-    <div class="container">
-        <div class="expression-container">
-            <div class="word-bank" id="wordBank">
-                <div class="word" draggable="true">for </div>
-                <div class="word" draggable="true">i </div>
-                <div class="word" draggable="true">in </div>
-                <div class="word" draggable="true">range(2, </div>
-                <div class="word" draggable="true">10, </div>
-                <div class="word" draggable="true">2):</div>
-                <div class="word" draggable="true">    </div>
-                <div class="word" draggable="true">print(i)</div>
-            </div>
-            <div class="expression-area" id="expressionArea1"></div>
-            <div class="expression-area" id="expressionArea2"></div>
-            <div class="trash" id="trash">🗑️</div>
-            <div class="action-buttons">
-                <button class="check-button" id="checkButton">Проверить</button>
-                <button class="clear-button" id="clearButton">♻️</button>
-            </div>
-            <!-- Поле для отображения собранного кода -->
-            <textarea id="codeEditor" readonly></textarea>
+<div class="container">
+    <div class="expression-container">
+<div class="word-bank" id="wordBank">
+    <div class="word" draggable="true">i</div>
+    <div class="word" draggable="true">for</div>
+    <div class="word" draggable="true">    </div>
+    <div class="word" draggable="true">in</div>
+    
+    <div class="word" draggable="true">print(i)</div>
+    <div class="word" draggable="true">range(i):</div>
+</div>
+
+
+        <div id="expressionAreas">
+        <div class="expression-area" id="expressionArea1"></div>
+        <div class="expression-area" id="expressionArea2"></div>
+
         </div>
-        <div class="overlay" id="overlay"></div>
-    </div>
-     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <script>
-        const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
-            lineNumbers: true, // Нумерация строк
-            mode: "python",    // Язык программирования
-            theme: "default",  // Тема
-            viewportMargin: Infinity, // Показать весь код сразу
-            readOnly: true     // Только для чтения
-        });
 
-        // Функция для обновления CodeMirror
-        function updateCodeEditor() {
-            const expressionArea1 = document.getElementById('expressionArea1');
-            const words1 = Array.from(expressionArea1.children).map(word => word.innerText).join(' ');
-            const expressionArea2 = document.getElementById('expressionArea2');
-            const words2 = Array.from(expressionArea2.children).map(word => word.innerText).join(' ');
-            const code = `${words1}\n${words2}`.trim(); // Объединяем строки через перевод строки
-            editor.setValue(code); // Обновляем содержимое CodeMirror
-        }
         
-
-        Sortable.create(document.getElementById('wordBank'), {
-            group: {
-                name: 'shared', // Группа для совместимости с другими контейнерами
-                pull: 'clone',  // Создание копии элемента при перетаскивании
-                put: false      // Запрет на перемещение элементов обратно в wordBank
-            },
-            
-            animation: 150,
-
+        <div class="trash" id="trashZone">🗑️</div>
+        <div class="action-buttons">
+            <button class="check-button" id="checkButton">Проверить</button>
+            <button class="clear-button" id="clearButton">♻️</button>
+        </div>
+        <!-- Поле для отображения собранного кода -->
+       <textarea id="codeEditor" readonly></textarea>
+       <button class="copy-button" id="copyButton">©️</button>
+    </div>
+<div class="overlay" id="overlay"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+    const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+            lineNumbers: true,
+            mode: "python",
+            theme: "default",
+            viewportMargin: Infinity,
+            readOnly: true,
+            indentUnit: 0,
+            electricChars: false,
+            smartIndent: false,
+            extraKeys: {
+                "Enter": false,
+                "Tab": false
+            }
         });
+    // Функция для обновления CodeMirror
+    function updateCodeEditor() {
+        let code = "";
+        document.querySelectorAll(".expression-area").forEach(area => {
+            const words = Array.from(area.children).map(word => word.innerText).join(' ');
+            if (words.trim()) code += words + "\n";
+        });
+
+        // Заменяем неразрывные пробелы ( ) на обычные пробелы
+        code = code.replace(/ /g, ' ');
+
+        // Заменяем 4 неразрывных пробела на 4 обычных
+        code = code.replace(/( ){4}/g, '    ');
+
+        // Устанавливаем значение в CodeMirror
+        if (editor) {
+            editor.setValue(code.trim());
+        }
+    }
+
+    // Обработчик клика для кнопки копирования
+    document.getElementById('copyButton').addEventListener('click', function () {
+        // Получаем содержимое из CodeMirror
+        const code = editor.getValue();
+
+        // Создаем временный элемент textarea для копирования
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.value = code;
+        document.body.appendChild(tempTextarea);
+
+        // Выбираем текст в textarea и копируем его
+        tempTextarea.select();
+        tempTextarea.setSelectionRange(0, 99999); // Для мобильных устройств
+        document.execCommand('copy');
+
+        // Удаляем временный элемент
+        document.body.removeChild(tempTextarea);
+
+        // Опционально: показываем сообщение об успешном копировании
+        alert('Код успешно скопирован!');
+    });
+
+    Sortable.create(document.getElementById('wordBank'), {
+        group: {
+            name: 'shared',
+            pull: 'clone',
+            put: false
+        },
+        animation: 150,
+        onEnd: updateCodeEditor
+    });
+
 
         Sortable.create(document.getElementById('expressionArea1'), {
             group: 'shared',
             animation: 150,
             onEnd: updateCodeEditor
         });
-
         Sortable.create(document.getElementById('expressionArea2'), {
             group: 'shared',
             animation: 150,
+            onEnd: updateCodeEditor
         });
-        document.getElementById('checkButton').addEventListener('click', function () {
-            // Правильное решение
-            const correctExpression1 = "for i in range(2, 10, 2):";
-            const correctExpression2 = "    print(i)";
 
-            // Получаем все элементы из expressionArea1
+    Sortable.create(document.getElementById('trashZone'), {
+        group: 'shared',
+        animation: 150,
+        onAdd: function (evt) {
+            evt.item.remove();
+        }
+    });
+
+    document.getElementById('checkButton').addEventListener('click', function () {
+        let isCorrect = true;
+
             const expressionArea1 = document.getElementById('expressionArea1');
             const wordsInArea1 = Array.from(expressionArea1.querySelectorAll('.word'));
-
-            // Получаем все элементы из expressionArea2
+            const userExpression1 = wordsInArea1.map(word => word.textContent).join('');
+            if (userExpression1 !== "foriinrange(i):") {
+                isCorrect = false;
+            }
             const expressionArea2 = document.getElementById('expressionArea2');
             const wordsInArea2 = Array.from(expressionArea2.querySelectorAll('.word'));
-
-            // Собираем текст из этих элементов
-            const userExpression1 = wordsInArea1.map(word => word.textContent).join('');
-            // Собираем текст из этих элементов
             const userExpression2 = wordsInArea2.map(word => word.textContent).join('');
-
-            const overlay = document.getElementById('overlay');
-
-            // Проверяем правильность
-            if (userExpression1 === correctExpression1 && userExpression2 === correctExpression2) {
-                
-                updateCodeEditor();
-                overlay.className = 'overlay correct';
-                overlay.innerHTML = 'Получилось!';
-            } else {
-                // alert('Попробуй ещё раз!');
-                overlay.className = 'overlay incorrect';
-                overlay.innerHTML = 'Попробуй ещё раз';
+            if (userExpression2 !== "    print(i)") {
+                isCorrect = false;
             }
-            overlay.style.display = 'flex';
-            setTimeout(() => { overlay.style.display = 'none'; }, 1000);
-        });
-    </script>
+
+        const overlay = document.getElementById('overlay');
+        if (isCorrect) {
+            updateCodeEditor();
+            overlay.className = 'overlay correct';
+            overlay.innerHTML = 'Получилось!';
+        } else {
+            overlay.className = 'overlay incorrect';
+            overlay.innerHTML = userExpression1 + "\n" + userExpression2;
+        }
+        overlay.style.display = 'flex';
+        setTimeout(() => { overlay.style.display = 'none'; }, 1000);
+    });
+    // Очистка содержимого expressionArea1 и expressionArea2
+    document.getElementById('clearButton').addEventListener('click', () => {
+          editor.setValue(''); // Очищаем CodeMirror
+
+          document.querySelectorAll('.expression-area').forEach(area => {
+              while (area.firstChild) {
+                  area.removeChild(area.firstChild);
+              }
+          });
+      });
+</script>
+
 </body>
 </html>
