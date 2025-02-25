@@ -212,7 +212,12 @@
         
 
         Sortable.create(document.getElementById('wordBank'), {
-            group: 'shared',
+            group: {
+                name: 'shared', // Группа для совместимости с другими контейнерами
+                pull: 'clone',  // Создание копии элемента при перетаскивании
+                put: false      // Запрет на перемещение элементов обратно в wordBank
+            },
+            
             animation: 150,
 
         });
