@@ -1,47 +1,264 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sortable Example</title>
+    <title>Составь выражение</title>
+    <!-- Подключение CodeMirror -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.7/mode/python/python.min.js"></script>
     <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            text-align: left;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+        .item h2, h5 {
+         
+          left: 0;
+          right: 0;
+          text-align: center;
+        }
+        
         .container {
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
         }
-        .list {
-            width: 200px;
-            margin: 10px;
+        .word-bank, .expression-area {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
             padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 12px;
+            background-color: white;
+            width: 90%;
+            /*max-width: 600px; */
+            min-width: 600px;
+            min-height: 50px;
+            flex-wrap: wrap; /* Для переноса элементов на новую строку */
+        }
+        /* Стили для CodeMirror */
+        .CodeMirror {
+            margin-top: 10px;
             border: 1px solid #ccc;
+            border-radius: 8px;
+            height: auto;
+        
         }
-        .item {
+        .word {
+            padding: 10px ;
+            background-color: #007AFF;
+            color: white;
+            cursor: grab;
+            user-select: none;
+            border-radius: 8px;
+            font-size: 14px;
+            display: inline-block;
+        }
+        .expression-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .check-button {
+            
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #34C759;
+            color: white;
+            border: none;
+            border-radius: 10px;
+        }
+        .trash {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
             padding: 10px;
-            margin: 5px;
-            background-color: lightblue;
-            cursor: move;
+            border: 2px solid #FF4500;
+            border-radius: 12px;
+            background-color: white;
+            width: 90%;
+            /*max-width: 600px; */
+            min-width: 600px;
+            min-height: 50px;
+            flex-wrap: wrap;
+        }
+        .clear-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: rgb(1, 50, 91);
+            color: #f9eff1;
+            
+            border: none;
+            border-radius: 10px;
+            
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+        .incorrect {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        .correct {
+            background: rgba(50, 205, 50, 0.5);
+        }
+        
+
+        /* Стили для контейнера кнопок */
+        .action-buttons {
+            display: flex;
+            justify-content: center; /* Центрирование по горизонтали */
+            gap: 10px; /* Пространство между элементами */
+            margin-top: 15px; /* Отступ сверху */
+        }
+
+        
+        @media (max-width: 480px) {
+            .word-bank, .expression-area, .trash, .overlay {
+                gap: 6px;
+                padding: 8px;
+                font-size: 12px;
+            }
+            .word {
+                padding: 6px 14px;
+                font-size: 12px;
+            }
+            .action-buttons {
+                flex-direction: row; /* Расположение элементов вертикально */
+                align-items: center; /* Центрирование по вертикали */
+            }
+
+            .action-buttons > * {
+                width: 100%; /* Ширина кнопок на всю доступную ширину */
+                margin: 5px 0; /* Отступы между кнопками */
+            }
+            .check-button, .clear-button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+            .trash {
+                font-size: 18px;
+            }
+
+
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="list" id="list1">
-            <div class="item">Item 1</div>
-            <div class="item">Item 2</div>
-            <div class="item">Item 3</div>
-        </div>
-        <div class="list" id="list2"></div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <div class="item">
+        <h2>Составь правильное выражение</h2>
+        <h5></h5>
+    </div>
+    <div class="container">
+        <div class="expression-container">
+            <div class="word-bank" id="wordBank">
+                <div class="word" draggable="true">for </div>
+                <div class="word" draggable="true">i </div>
+                <div class="word" draggable="true">in </div>
+                <div class="word" draggable="true">range(2, </div>
+                <div class="word" draggable="true">10, </div>
+                <div class="word" draggable="true">2):</div>
+                <div class="word" draggable="true">    </div>
+                <div class="word" draggable="true">print(i)</div>
+            </div>
+            <div class="expression-area" id="expressionArea1"></div>
+            <div class="expression-area" id="expressionArea2"></div>
+            <div class="trash" id="trash">🗑️</div>
+            <div class="action-buttons">
+                <button class="check-button" id="checkButton">Проверить</button>
+                <button class="clear-button" id="clearButton">♻️</button>
+            </div>
+            <!-- Поле для отображения собранного кода -->
+            <textarea id="codeEditor" readonly></textarea>
+        </div>
+        <div class="overlay" id="overlay"></div>
+    </div>
+     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script>
-        Sortable.create(document.getElementById('list1'), {
+        const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+            lineNumbers: true, // Нумерация строк
+            mode: "python",    // Язык программирования
+            theme: "default",  // Тема
+            viewportMargin: Infinity, // Показать весь код сразу
+            readOnly: true     // Только для чтения
+        });
+
+        // Функция для обновления CodeMirror
+        function updateCodeEditor() {
+            const expressionArea1 = document.getElementById('expressionArea1');
+            const words1 = Array.from(expressionArea1.children).map(word => word.innerText).join(' ');
+            const expressionArea2 = document.getElementById('expressionArea2');
+            const words2 = Array.from(expressionArea2.children).map(word => word.innerText).join(' ');
+            const code = `${words1}\n${words2}`.trim(); // Объединяем строки через перевод строки
+            editor.setValue(code); // Обновляем содержимое CodeMirror
+        }
+        
+
+        Sortable.create(document.getElementById('wordBank'), {
+            group: 'shared',
+            animation: 150,
+
+        });
+
+        Sortable.create(document.getElementById('expressionArea1'), {
+            group: 'shared',
+            animation: 150,
+            onEnd: updateCodeEditor
+        });
+
+        Sortable.create(document.getElementById('expressionArea2'), {
             group: 'shared',
             animation: 150,
         });
+        document.getElementById('checkButton').addEventListener('click', function () {
+            // Правильное решение
+            const correctExpression1 = "for i in range(2, 10, 2):";
+            const correctExpression2 = "    print(i)";
 
-        Sortable.create(document.getElementById('list2'), {
-            group: 'shared',
-            animation: 150,
+            // Получаем все элементы из expressionArea1
+            const expressionArea1 = document.getElementById('expressionArea1');
+            const wordsInArea1 = Array.from(expressionArea1.querySelectorAll('.word'));
+
+            // Получаем все элементы из expressionArea2
+            const expressionArea2 = document.getElementById('expressionArea2');
+            const wordsInArea2 = Array.from(expressionArea2.querySelectorAll('.word'));
+
+            // Собираем текст из этих элементов
+            const userExpression1 = wordsInArea1.map(word => word.textContent).join('');
+            // Собираем текст из этих элементов
+            const userExpression2 = wordsInArea2.map(word => word.textContent).join('');
+
+            // Проверяем правильность
+            if (userExpression1 === correctExpression1 && userExpression2 === correctExpression2) {
+                alert("Правильно! Вы составили корректное выражение.");
+                updateCodeEditor();
+            } else {
+                alert(`Неправильно! Ваше выражение: "\n${userExpression1}\n${userExpression2}"\nПравильное выражение: "\n${correctExpression1}\n${correctExpression2}"`);
+                updateCodeEditor();
+            }
         });
     </script>
 </body>
