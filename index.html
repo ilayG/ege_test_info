@@ -174,7 +174,7 @@
     <div class="word" draggable="true">in</div>
     
     <div class="word" draggable="true">print(i)</div>
-    <div class="word" draggable="true">range(i):</div>
+    <div class="word" draggable="true">range(10):</div>
 </div>
 
 
@@ -290,7 +290,7 @@
             const expressionArea1 = document.getElementById('expressionArea1');
             const wordsInArea1 = Array.from(expressionArea1.querySelectorAll('.word'));
             const userExpression1 = wordsInArea1.map(word => word.textContent).join('');
-            if (userExpression1 !== "foriinrange(i):") {
+            if (userExpression1 !== "foriinrange(10):") {
                 isCorrect = false;
             }
             const expressionArea2 = document.getElementById('expressionArea2');
